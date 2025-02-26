@@ -26,3 +26,20 @@ jobs:
 
       - name: Build project
         run: npm run build
+
+      - name: Check if deploy is needed
+        id: check-deploy
+        run: |
+          if [ "${{ github.actor }}" == "valeriasambilova" ]; then
+            echo "::set-output name=should_deploy::true"
+          else
+            echo "::set-output name=should_deploy::false"
+          fi
+
+      - name: Deploy to Vercel
+        if: steps.check-deploy.outputs.should_deploy == 'true'
+        uses: amondnet/vercel-action@v20
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
